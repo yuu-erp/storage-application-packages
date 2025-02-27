@@ -1,0 +1,43 @@
+{
+  "name": "storage-meta-node",
+  "version": "1.0.0",
+  "description": "The Metanode CLI is a command-line tool for creating and managing Metanode projects. This README provides instructions on how to use the CLI to create new projects and run them.",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write ."
+  },
+  "husky": {
+    "hooks": {}
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.2"
+  }
+}
