@@ -12,7 +12,11 @@
     "postinstall": "husky install",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "cli": "yarn workspace @metanode/cli dev",
+    "test:utils": "yarn workspace @metanode/utils test",
+    "test:contract": "yarn workspace @metanode/utils test",
+    "test:core": "yarn workspace @metanode/utils test"
   },
   "husky": {
     "hooks": {
