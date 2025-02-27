@@ -14,9 +14,9 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "cli": "yarn workspace @metanode/cli dev",
-    "test:utils": "yarn workspace @metanode/utils test",
-    "test:contract": "yarn workspace @metanode/utils test",
-    "test:core": "yarn workspace @metanode/utils test"
+    "utils": "yarn workspace @metanode/utils",
+    "contract": "yarn workspace @metanode/utils test",
+    "core": "yarn workspace @metanode/core"
   },
   "husky": {
     "hooks": {
