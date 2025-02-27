@@ -5,6 +5,7 @@ module.exports = {
     node: true,
     es2021: true
   },
+  ignores: ['node_modules', 'dist', 'build', 'coverage', '*.min.js'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',

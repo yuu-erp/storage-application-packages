@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@system-core/*": ["packages/system-core/src/*"],
+      "@metanode-utils/*": ["packages/metanode-utils/src/*"],
+      "@smart-contract/*": ["packages/smart-contract/src/*"]
+    }
+  },
+  "include": ["packages", "apps"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "**/*.test.ts", "**/*.spec.ts"]
+}

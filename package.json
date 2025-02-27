@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "The Metanode CLI is a command-line tool for creating and managing Metanode projects. This README provides instructions on how to use the CLI to create new projects and run them.",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --ext .ts,.tsx",
