@@ -7,14 +7,22 @@ export function isValidAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address)
 }
 
+/**
+ * Kiểm tra xem một tên có hợp lệ hay không.
+ *
+ * - Chỉ cho phép chữ cái (bao gồm dấu tiếng Việt) và khoảng trắng.
+ * - Độ dài phải từ 2 đến 50 ký tự.
+ * - Không chấp nhận số hoặc ký tự đặc biệt.
+ * - Tự động loại bỏ khoảng trắng đầu và cuối trước khi kiểm tra.
+ *
+ * @param {string} name - Tên cần kiểm tra.
+ * @returns {boolean} - `true` nếu hợp lệ, `false` nếu không hợp lệ.
+ */
 export const isValidName = (name: string) => {
-  if (!name.trim()) throw new Error("Name can't be empty !!") // Kiểm tra tên rỗng sau khi loại bỏ khoảng trắng đầu/cuối
-
-  const regex = /^[a-zA-Z0-9 ]+$/ // Chỉ cho phép chữ cái, số và khoảng trắng
-  if (!regex.test(name)) throw new Error('Text can only contain letters and numbers')
-
-  return true
+  const regex = /^[A-Za-zÀ-ỹ\s]{2,50}$/
+  return regex.test(name.trim())
 }
+
 /**
  * Kiểm tra xem đối tượng có rỗng hay không.
  * Hàm này kiểm tra đối với các kiểu dữ liệu như chuỗi, mảng, và đối tượng.
