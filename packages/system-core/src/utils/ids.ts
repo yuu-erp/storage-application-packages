@@ -1,13 +1,13 @@
 /**
- * Generates a random alphanumeric string of the specified length.
+ * Tạo một chuỗi ngẫu nhiên gồm chữ và số với độ dài chỉ định.
  *
- * @param {number} length - The desired length of the generated string.
- * @returns {string} A randomly generated string consisting of uppercase letters, lowercase letters, and digits.
- * @throws {Error} If the length is not a positive integer.
+ * @param {number} length - Độ dài mong muốn của chuỗi được tạo.
+ * @returns {string} Chuỗi ngẫu nhiên bao gồm chữ in hoa, chữ thường và số.
+ * @throws {Error} Nếu độ dài không phải là một số nguyên dương.
  */
 export function generateRandomString(length: number): string {
   if (!Number.isInteger(length) || length <= 0) {
-    throw new Error('Length must be a positive integer.')
+    throw new Error('Độ dài phải là một số nguyên dương.')
   }
 
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

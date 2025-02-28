@@ -15,7 +15,6 @@
     "format": "prettier --write .",
     "cli": "yarn workspace @metanode/cli dev",
     "utils": "yarn workspace @metanode/utils",
-    "contract": "yarn workspace @metanode/utils test",
     "core": "yarn workspace @metanode/core"
   },
   "husky": {
