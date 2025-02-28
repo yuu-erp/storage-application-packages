@@ -1,6 +1,7 @@
 import { input, select } from '@inquirer/prompts'
 import { Command } from 'commander'
 import { LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
+import { isValidFolderName } from '../utils/validators'
 
 export default (program: Command) => {
   return program
@@ -29,7 +30,7 @@ export default (program: Command) => {
           return true
         }
       })
-
+      if (!isValidFolderName(projectName)) throw new Error('Tên dự án không hợp lệ!')
       const projectDirectory = `../apps/${projectName}/`
       console.log('projectDirectory: ', projectDirectory)
     })
