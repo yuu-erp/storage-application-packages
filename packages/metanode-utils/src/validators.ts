@@ -8,39 +8,19 @@ export function isValidAddress(address: string): boolean {
 }
 
 /**
- * Kiểm tra xem chuỗi đầu vào có phải là private key hợp lệ không.
- * Hàm này hỗ trợ cả địa chỉ có và không có tiền tố "0x".
- * @param privateKey - Chuỗi cần kiểm tra, đại diện cho private key.
- * @returns `true` nếu chuỗi là địa chỉ hợp lệ, ngược lại trả về `false`.
- */
-export const isPrivateKey = (privateKey?: string) => {
-  if (!privateKey || typeof privateKey !== 'string') return false
-  const normalizedPrivateKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey
-  return normalizedPrivateKey.length === 64 && /^[a-fA-F0-9]{64}$/.test(normalizedPrivateKey)
-}
-
-/**
- * Checks if a string is a valid hexadecimal.
+ * Kiểm tra xem một tên có hợp lệ hay không.
  *
- * @param {string} str - The string to check.
- * @returns {boolean} - Returns true if the string is a valid hex, otherwise false.
- */
-export function isByte32(str: string): boolean {
-  return typeof str === 'string' && str.length === 64 && /^[0-9A-Fa-f]+$/.test(str)
-}
-
-/**
- * Kiểm tra xem tên nhập vào có hợp lệ hay không
- * @param name Tên nhập vào
- * @returns true nếu hợp lệ, ngược lại false
+ * - Chỉ cho phép chữ cái (bao gồm dấu tiếng Việt) và khoảng trắng.
+ * - Độ dài phải từ 2 đến 50 ký tự.
+ * - Không chấp nhận số hoặc ký tự đặc biệt.
+ * - Tự động loại bỏ khoảng trắng đầu và cuối trước khi kiểm tra.
+ *
+ * @param {string} name - Tên cần kiểm tra.
+ * @returns {boolean} - `true` nếu hợp lệ, `false` nếu không hợp lệ.
  */
 export const isValidName = (name: string) => {
-  if (!name.trim()) throw new Error("Name can't be empty !!") // Kiểm tra tên rỗng sau khi loại bỏ khoảng trắng đầu/cuối
-
-  const regex = /^[a-zA-Z0-9 ]+$/ // Chỉ cho phép chữ cái, số và khoảng trắng
-  if (!regex.test(name)) throw new Error('Text can only contain letters and numbers')
-
-  return true
+  const regex = /^[A-Za-zÀ-ỹ\s]{2,50}$/
+  return regex.test(name.trim())
 }
 
 /**
