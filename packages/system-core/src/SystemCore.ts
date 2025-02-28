@@ -1,13 +1,45 @@
+import { SendResponseDto } from './dtos/send-response.dto'
+import { SendPayloadDto } from './dtos/send.dto'
+import { receiveData } from './receiveData'
 import { splitDataIntoChunks } from './utils'
 import { EventEmitter } from './utils/EventEmitter'
+import { generateRandomString } from './utils/ids'
 
 class SystemCore extends EventEmitter {
-  private pendingCommands = new Set<string>()
+  #pendingCommands = new Set<string>()
+  #isReady: boolean
+  #hasNotch: boolean = false
+  #isFrame: boolean
+  #finSdk: typeof window.finSdk | undefined
+
   constructor() {
     super()
+    this.#isFrame = window !== window.parent
+    this.#isReady =
+      this.#isFrame || !!window.webkit?.messageHandlers?.callbackHandler || !!window.opener
+    this.#finSdk = window.finSdk
   }
 
-  public send() {}
+  get isReady() {
+    return this.#isReady
+  }
+
+  get statusNotch() {
+    return this.#hasNotch
+  }
+
+  public async send(payload: SendPayloadDto) {
+    if (typeof this.#finSdk !== 'undefined' || this.#finSdk) {
+      return await this.#finSdk.call(payload)
+    }
+    if (!window?.webkit?.messageHandlers && !this.#isFrame)
+      throw new Error('Your device is not deployed yet.')
+    receiveData[payload.command] = -1
+    payload.appId = window.appId
+    payload.messageId = generateRandomString(8)
+    this.#sendMessageToNative(payload)
+    return await this.#postMessageToWindow(payload)
+  }
 
   #sendChunks(command: string, data: string, isFrame = false) {
     if (!command || typeof command !== 'string') {
@@ -26,7 +58,7 @@ class SystemCore extends EventEmitter {
   #postMessage(message: string, isFrame = false) {
     try {
       if (isFrame) {
-        window.parent.postMessage(message, '*') // Cân nhắc thay '*' bằng origin cụ thể
+        window.parent.postMessage(message, window.origin)
       } else if (
         typeof window?.webkit?.messageHandlers?.callbackHandler?.postMessage === 'function'
       ) {
@@ -39,15 +71,38 @@ class SystemCore extends EventEmitter {
     }
   }
 
-  #sendMessageToNative(message: { command: string; messageId?: string }, isFrame: boolean) {
+  #sendMessageToNative(payload: SendPayloadDto) {
     try {
-      const formattedMessage = JSON.stringify(message)
-      this.#postMessage(formattedMessage, isFrame)
+      const message = JSON.stringify(payload)
+      if (message.length > 64000) {
+        this.#sendChunks(payload.command, message)
+      } else {
+        const messageNormal = JSON.stringify({
+          type: 'normal',
+          data: message
+        })
+        this.#postMessage(messageNormal)
+      }
     } catch (error) {
       console.error('Error sending message:', error)
     } finally {
-      this.pendingCommands.delete(message.command.toString())
+      this.#pendingCommands.delete(payload.command.toString())
     }
+  }
+
+  #postMessageToWindow(payload: SendPayloadDto): Promise<SendResponseDto> {
+    return new Promise((resolve, reject) => {
+      try {
+        const receivedResponse = (res: SendResponseDto) => {
+          resolve(res)
+          this.removeEventListener(payload.command, receivedResponse)
+        }
+        this.on(payload.command, receivedResponse)
+        window.opener?.postMessage(payload, '*')
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 }
 

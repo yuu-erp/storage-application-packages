@@ -7,41 +7,41 @@ describe('EventEmitter', () => {
     eventEmitter = new EventEmitter()
   })
 
-  test('should register and trigger an event', () => {
+  test('nên đăng ký và kích hoạt sự kiện', () => {
     const handler = jest.fn()
-    eventEmitter.on('testEvent', handler)
+    eventEmitter.on('suKienTest', handler)
 
-    eventEmitter.emit('testEvent', 'payload')
+    eventEmitter.emit('suKienTest', 'dữ liệu')
 
-    expect(handler).toHaveBeenCalledWith('payload')
+    expect(handler).toHaveBeenCalledWith('dữ liệu')
     expect(handler).toHaveBeenCalledTimes(1)
   })
 
-  test('should remove a specific event listener', () => {
+  test('nên xóa một listener cụ thể của sự kiện', () => {
     const handler = jest.fn()
-    eventEmitter.on('testEvent', handler)
+    eventEmitter.on('suKienTest', handler)
 
-    eventEmitter.removeEventListener('testEvent', handler)
-    eventEmitter.emit('testEvent', 'payload')
+    eventEmitter.removeEventListener('suKienTest', handler)
+    eventEmitter.emit('suKienTest', 'dữ liệu')
 
     expect(handler).not.toHaveBeenCalled()
   })
 
-  test('should remove all listeners for an event', () => {
+  test('nên xóa tất cả listener của một sự kiện', () => {
     const handler1 = jest.fn()
     const handler2 = jest.fn()
 
-    eventEmitter.on('testEvent', handler1)
-    eventEmitter.on('testEvent', handler2)
+    eventEmitter.on('suKienTest', handler1)
+    eventEmitter.on('suKienTest', handler2)
 
-    eventEmitter.removeAllEventListeners('testEvent')
-    eventEmitter.emit('testEvent', 'payload')
+    eventEmitter.removeAllEventListeners('suKienTest')
+    eventEmitter.emit('suKienTest', 'dữ liệu')
 
     expect(handler1).not.toHaveBeenCalled()
     expect(handler2).not.toHaveBeenCalled()
   })
 
-  test('should not fail if emitting an event with no listeners', () => {
-    expect(() => eventEmitter.emit('nonExistentEvent', 'payload')).not.toThrow()
+  test('không nên lỗi khi kích hoạt sự kiện không có listener', () => {
+    expect(() => eventEmitter.emit('suKienKhongTonTai', 'dữ liệu')).not.toThrow()
   })
 })

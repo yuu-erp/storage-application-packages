@@ -1,7 +1,7 @@
 import { generateRandomString } from '../utils/ids'
 
 describe('IDs Function', () => {
-  test('should generate a string of the specified length', () => {
+  test('nên tạo ra một chuỗi có độ dài được chỉ định', () => {
     const length = 10
     const randomString = generateRandomString(length)
 
