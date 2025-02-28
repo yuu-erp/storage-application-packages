@@ -7,32 +7,23 @@ class SystemCore extends EventEmitter {
     super()
   }
 
-  #sendChunks(command: string, data: string, isFrame = false) {
-    try {
-      if (!command || typeof command !== 'string') {
-        throw new Error('Command must be a valid string')
-      }
-      const chunks = splitDataIntoChunks(data)
-      console.log(`Sending ${chunks.length} chunks`)
-      chunks.forEach(({ chunk, index, totalChunks }) => {
-        const message = JSON.stringify({ type: 'large', chunk, index, totalChunks, command })
+  public send() {}
 
-        if (isFrame) {
-          window.parent.postMessage(message, '*') // Cân nhắc thay '*' bằng origin cụ thể
-        } else if (
-          typeof window?.webkit?.messageHandlers?.callbackHandler?.postMessage === 'function'
-        ) {
-          window.webkit.messageHandlers.callbackHandler.postMessage(message)
-        } else {
-          console.warn('WebKit message handler not found')
-        }
-      })
-    } catch (error) {
-      console.error('Error sending data:', error)
+  #sendChunks(command: string, data: string, isFrame = false) {
+    if (!command || typeof command !== 'string') {
+      throw new Error('Command must be a valid string')
     }
+
+    const chunks = splitDataIntoChunks(data)
+    console.log(`Sending ${chunks.length} chunks`)
+
+    chunks.forEach(({ chunk, index, totalChunks }) => {
+      const message = JSON.stringify({ type: 'large', chunk, index, totalChunks, command })
+      this.#postMessage(message, isFrame)
+    })
   }
 
-  #sendMessage(message: string, isFrame = false) {
+  #postMessage(message: string, isFrame = false) {
     try {
       if (isFrame) {
         window.parent.postMessage(message, '*') // Cân nhắc thay '*' bằng origin cụ thể
@@ -44,13 +35,16 @@ class SystemCore extends EventEmitter {
         console.warn('WebKit message handler not found')
       }
     } catch (error) {
-      console.error('Error sending data:', error)
+      console.error('Error sending message:', error)
     }
   }
 
-  #sendMessageToNative(message: { command: string; messageId?: string }, _isFrame: boolean) {
+  #sendMessageToNative(message: { command: string; messageId?: string }, isFrame: boolean) {
     try {
+      const formattedMessage = JSON.stringify(message)
+      this.#postMessage(formattedMessage, isFrame)
     } catch (error) {
+      console.error('Error sending message:', error)
     } finally {
       this.pendingCommands.delete(message.command.toString())
     }
