@@ -9,10 +9,10 @@ describe('Validator Functions', () => {
     })
 
     test('Tên không hợp lệ', () => {
-      expect(isValidFolderName('folder name')).toBe(false) // Khoảng trắng
-      expect(isValidFolderName('Invalid@Name!')).toBe(false) // Ký tự đặc biệt
-      expect(isValidFolderName('')).toBe(false) // Rỗng
-      expect(isValidFolderName('a'.repeat(101))).toBe(false) // Quá dài (>100 ký tự)
+      expect(isValidFolderName('folder name')).toBe(false)
+      expect(isValidFolderName('Invalid@Name!')).toBe(false)
+      expect(isValidFolderName('')).toBe(false)
+      expect(isValidFolderName('a'.repeat(101))).toBe(false)
     })
   })
 })
