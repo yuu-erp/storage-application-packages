@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "test:watch": "jest --watch",
     "dev": "tsx ./src/index.ts"
   },
   "devDependencies": {

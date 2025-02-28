@@ -36,13 +36,14 @@ export const LIST_PROJECT = [
     description:
       'Ideal for creating a project. Best suited for interactive user interfaces and component-based architectures.'
   },
+  new Separator(),
   {
     name: 'Vanilla Vite',
     value: ProjectType.VANILLA_VITE,
+    disabled: true,
     description:
       'A lightweight setup for building web applications without frameworks. Uses Vite for fast development and optimized builds.'
   },
-  new Separator(),
   {
     name: 'NextJs',
     value: ProjectType.NEXT_JS,

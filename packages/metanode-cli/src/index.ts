@@ -12,7 +12,6 @@ const commandFiles = fs
 
 for (const file of commandFiles) {
   const { default: command } = require(handlePath(`./commands/${file}`, __dirname))
-  console.log('command: ', command)
   command(program)
 }
 
