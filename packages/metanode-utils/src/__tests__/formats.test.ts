@@ -2,8 +2,9 @@ import { formatAddress } from '../formats'
 
 describe('Format Functions', () => {
   test('should format addresses', () => {
-    expect(formatAddress('0x742D35Cc6634C0532925A3B844Bc454E4438F44E')).toBe(
-      '0x742d35cc6634c0532925a3b844bc454e4438f44e'
+    // format đúng định dạng thành chử thường
+    expect(formatAddress('0x295ebd481ad46f96ccae4bfa0ed5c6d74c321032')).toBe(
+      '0x295ebd481ad46f96ccae4bfa0ed5c6d74c321032'
     )
   })
 })

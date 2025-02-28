@@ -4,5 +4,6 @@
  * @returns Địa chỉ Ethereum đã chuẩn hóa
  */
 export function formatAddress(address: string): string {
+  // chuyển thành chử thường dùng hàm toLowerCase() của javascript ( không biết thì search google )
   return address.toLowerCase()
 }
