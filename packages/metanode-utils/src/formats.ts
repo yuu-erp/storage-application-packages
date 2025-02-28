@@ -26,7 +26,7 @@ export const truncateString = (
 
   // Tạo một hàm phụ để tránh lặp lại mã
   const getTruncated = (start: number, end: number) =>
-    `${str.slice(0, start)}${placeholder}${str.slice(-end)}`
+    `${str.toString().slice(0, start)}${placeholder}${str.toString().slice(-end)}`
 
   switch (position) {
     case 'start':

@@ -8,6 +8,18 @@ export function isValidAddress(address: string): boolean {
 }
 
 /**
+ * Kiểm tra xem chuỗi đầu vào có phải là private key hợp lệ không.
+ * Hàm này hỗ trợ cả địa chỉ có và không có tiền tố "0x".
+ * @param {string} privateKey - Chuỗi cần kiểm tra, đại diện cho private key.
+ * @returns {boolean} `true` nếu chuỗi là địa chỉ hợp lệ, ngược lại trả về `false`.
+ */
+export const isPrivateKey = (privateKey?: string) => {
+  if (!privateKey || typeof privateKey !== 'string') return false
+  const normalizedPrivateKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey
+  return normalizedPrivateKey.length === 64 && /^[a-fA-F0-9]{64}$/.test(normalizedPrivateKey)
+}
+
+/**
  * Kiểm tra xem một tên có hợp lệ hay không.
  *
  * - Chỉ cho phép chữ cái (bao gồm dấu tiếng Việt) và khoảng trắng.
