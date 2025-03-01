@@ -2,6 +2,9 @@ import { input, select } from '@inquirer/prompts'
 import { Command } from 'commander'
 import { LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
 import { isValidFolderName } from '../utils/validators'
+import { handlePath } from '../utils'
+import fs from 'fs'
+import { getFolderChildApps } from '../utils/getFolderChildApps'
 
 export default (program: Command) => {
   return program
@@ -9,6 +12,11 @@ export default (program: Command) => {
     .description('Create a new Metanode project.')
     .action(async () => {
       try {
+        const folderType = await select({
+          message: 'Please select the type of project you want to create:',
+          choices: getFolderChildApps('../../../apps')
+        })
+
         const projectType = await select({
           message: 'Please select the type of project you want to create:',
           choices: LIST_PROJECT
