@@ -59,3 +59,5 @@ export const LIST_PROJECT = [
       'Currently, it is not possible to create projects using Remix. Stay tuned for future improvements.'
   }
 ]
+
+export const KEY_WORKSPACE_NAME = '__project_name__'
