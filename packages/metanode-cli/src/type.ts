@@ -7,10 +7,10 @@ export enum EnumTypeEnv {
 }
 
 export enum ProjectType {
-  REACT_VITE = 'reactjs-vite',
-  VANILLA_VITE = 'vanilla-vite',
-  NEXT_JS = 'nextjs',
-  REMIX = 'remix'
+  REACT_VITE_TEMPLATE = 'REACT_VITE_TEMPLATE',
+  VANILLA_VITE_TEMPLATE = 'VANILLA_VITE_TEMPLATE',
+  NEXT_JS = 'NEXT_JS',
+  REMIX = 'REMIX'
 }
 
 export enum FolderApps {

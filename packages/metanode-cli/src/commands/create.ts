@@ -1,8 +1,23 @@
 import { input, select } from '@inquirer/prompts'
 import { Command } from 'commander'
-import { LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
-import { getFolderChildApps } from '../utils/getFolderChildApps'
+import fs from 'fs'
+import { FolderDescriptions, LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
+import { FolderApps, ProjectType } from '../type'
+import { createDirectory, handlePath } from '../utils'
 import { isValidFolderName } from '../utils/validators'
+
+const getFolderChildApps = (path: string) => {
+  return fs
+    .readdirSync(handlePath(path), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => {
+      return {
+        name: dirent.name,
+        value: dirent.name as FolderApps,
+        description: FolderDescriptions[dirent.name as FolderApps]
+      }
+    })
+}
 
 const promptFolderType = async () => {
   return await select({
@@ -51,6 +66,10 @@ const promptProjectPort = async () => {
   }
 }
 
+const getTemplateDirectory = (projectType: ProjectType) => {
+  console.log(projectType)
+}
+
 export default (program: Command) => {
   return program
     .command('create')
@@ -64,8 +83,11 @@ export default (program: Command) => {
         const projectPort = await promptProjectPort()
 
         console.log({ folderType, projectType, projectName, projectEnv, projectPort })
-      } catch (error) {
-        console.error('⚠️ Đã xảy ra lỗi:', error)
+        const projectDirectory = `../../../apps/${folderType}/${projectName}/`
+        const templateDirectory = `./src/templates/${projectType}`
+        createDirectory(projectDirectory)
+      } catch (error: unknown) {
+        console.error('⚠️ Đã xảy ra lỗi:', (error as Error).message)
         process.exit(1)
       }
     })

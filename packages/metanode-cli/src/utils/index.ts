@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 
 /**
  * Tạo đường dẫn tuyệt đối từ filePath và basePath.
@@ -8,3 +9,18 @@ import path from 'path'
  */
 export const handlePath = (filePath: string, basePath = path.resolve('src')): string =>
   path.resolve(basePath, filePath)
+
+/**
+ * Tạo thư mục nếu chưa tồn tại.
+ * @param dirPath Đường dẫn thư mục cần tạo.
+ */
+export const createDirectory = (dirPath: string): void => {
+  const absolutePath = handlePath(dirPath)
+
+  if (!fs.existsSync(absolutePath)) {
+    fs.mkdirSync(absolutePath, { recursive: true })
+    console.log(`✅ Thư mục đã được tạo: ${absolutePath}`)
+  } else {
+    console.log(`⚠️ Thư mục đã tồn tại: ${absolutePath}`)
+  }
+}
