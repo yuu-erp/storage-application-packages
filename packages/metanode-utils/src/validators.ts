@@ -60,3 +60,33 @@ export const isEmpty = (d: any): boolean => {
   // Nếu không phải object, trả về true nếu giá trị là falsy (undefined, null, false, 0, '', NaN)
   return !d
 }
+
+/**
+ * Checks if a string is a valid hexadecimal.
+ *
+ * @param {string} str - The string to check.
+ * @returns {boolean} - Returns true if the string is a valid hex, otherwise false.
+ */
+export function isByte32(str: string): boolean {
+  return typeof str === 'string' && str.length === 64 && /^[0-9A-Fa-f]+$/.test(str)
+}
+
+/**
+ * Kiểm tra xem một chuỗi có phải là chuỗi hex hợp lệ hay không.
+ *
+ * Điều kiện hợp lệ:
+ * - Chỉ chứa các ký tự số (0-9) hoặc chữ cái hex (a-f, A-F).
+ * - Độ dài của chuỗi phải là số chẵn (mỗi byte có 2 ký tự).
+ *
+ * @param str - Chuỗi cần kiểm tra.
+ * @returns `true` nếu chuỗi là hex hợp lệ, ngược lại trả về `false`.
+ */
+export function isHex(str: string) {
+  if (typeof str !== 'string') {
+    return false // Input must be a string
+  }
+
+  // Check if the string only contains hex characters (0-9, a-f, A-F) and has an even length
+  const hexRegex = /^[0-9a-fA-F]+$/
+  return str.length % 2 === 0 && hexRegex.test(str)
+}

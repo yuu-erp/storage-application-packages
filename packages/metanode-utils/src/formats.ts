@@ -41,6 +41,19 @@ export const truncateString = (
 }
 
 /**
+ * Rút gọn chuỗi bằng cách hiển thị phần đầu và cuối, chèn dấu "..." ở giữa.
+ *
+ * @param {string} text - Chuỗi cần rút gọn.
+ * @param {number} [length=6] - Độ dài tối đa của chuỗi hiển thị (bao gồm cả dấu "...").
+ * @returns {string} - Chuỗi đã được rút gọn.
+ */
+export const shortString = (text: string, length: number = 6) => {
+  if (text.length < length) return text
+  const half = Math.floor(length / 2)
+  return `${text.slice(0, half)}...${text.slice(-half)}`
+}
+
+/**
  * Loại bỏ dấu tiếng Việt khỏi chuỗi, chuyển các ký tự có dấu thành không dấu.
  *
  * - Duyệt qua danh sách các ký tự có dấu.
