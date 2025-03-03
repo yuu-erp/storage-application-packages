@@ -15,3 +15,25 @@ export const handleMessageError = (error: any): string => {
     JSON.stringify(error) // Trả về đối tượng lỗi dưới dạng chuỗi JSON nếu không tìm thấy thông điệp lỗi
   )
 }
+
+/**
+ * Hàm debounce trì hoãn việc thực thi một hàm cho đến sau một khoảng thời gian kể từ lần gọi cuối,
+ * giúp hạn chế các lần gọi không cần thiết.
+ *
+ * @param func - Hàm cần debounce.
+ * @param wait - Thời gian chờ (ms) trước khi thực thi.
+ * @returns Hàm mới chỉ chạy `func` sau `wait` ms kể từ lần gọi cuối.
+ */
+export const debounce = (func: Function, wait: number) => {
+  let timeout: any
+
+  return (...args: any[]) => {
+    const later = () => {
+      timeout = null
+      func(...args)
+    }
+
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}

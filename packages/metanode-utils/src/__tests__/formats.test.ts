@@ -1,4 +1,4 @@
-import { formatAddress, truncateString } from '../formats'
+import { formatAddress, removeAccents, truncateString } from '../formats'
 
 describe('Format Functions', () => {
   describe('formatAddress - Định dạng địa chỉ', () => {
@@ -41,6 +41,30 @@ describe('Format Functions', () => {
       expect(truncateString(null as any, 3)).toBe('') // `null` -> chuỗi rỗng
       expect(truncateString(undefined as any, 3)).toBe('') // `undefined` -> chuỗi rỗng
       expect(truncateString(1234567890 as any, 3)).toBe('123...890') // Chuyển số thành chuỗi và cắt
+    })
+  })
+
+  describe('removeAccents - Kiểm tra hàm loại bỏ dấu tiếng Việt', () => {
+    it('Loại bỏ dấu trong chuỗi có ký tự tiếng Việt', () => {
+      expect(removeAccents('Hòa Bình')).toBe('Hoa Binh')
+      expect(removeAccents('Công nghệ')).toBe('Cong nghe')
+      expect(removeAccents('điện thoại')).toBe('dien thoai')
+      expect(removeAccents('Thể thao')).toBe('The thao')
+    })
+
+    it('Giữ nguyên chuỗi không có dấu', () => {
+      expect(removeAccents('Hello')).toBe('Hello')
+      expect(removeAccents('123456')).toBe('123456')
+      expect(removeAccents('!@#$%^&*()')).toBe('!@#$%^&*()')
+    })
+
+    it('Trả về chuỗi rỗng nếu đầu vào là rỗng', () => {
+      expect(removeAccents('')).toBe('')
+    })
+
+    it('Xử lý chính xác chuỗi chỉ chứa ký tự có dấu', () => {
+      expect(removeAccents('ắặâầểễếệ')).toBe('aaaaeeee')
+      expect(removeAccents('ỳỷỹýỵ')).toBe('yyyyy')
     })
   })
 })
