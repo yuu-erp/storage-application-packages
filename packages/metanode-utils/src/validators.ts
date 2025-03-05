@@ -45,18 +45,15 @@ export const isValidName = (name: string) => {
 export const isEmpty = (d: any): boolean => {
   // Kiểm tra trường hợp nếu đối tượng là null hoặc undefined
   if (d == null) return true
-
   // Kiểm tra các loại đối tượng có thể có thuộc tính length (ví dụ: chuỗi hoặc mảng)
   if (typeof d === 'object') {
     // Trường hợp là mảng hoặc chuỗi
     if (Array.isArray(d) || typeof d === 'string') {
       return d.length === 0
     }
-
     // Trường hợp là đối tượng, kiểm tra số lượng keys của nó
     return Object.keys(d).length === 0
   }
-
   // Nếu không phải object, trả về true nếu giá trị là falsy (undefined, null, false, 0, '', NaN)
   return !d
 }

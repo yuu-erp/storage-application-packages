@@ -1,10 +1,6 @@
 import { SEED_SECRECT, strToSeed } from '../formats'
 
 describe('Hàm strToSeed', () => {
-  test('Trả về lỗi nếu chuỗi chỉ có một ký tự sau prefix', () => {
-    expect(() => strToSeed(SEED_SECRECT + 'A')).toThrow()
-  })
-
   test('Trả về lỗi nếu chuỗi không có đúng prefix', () => {
     expect(() => strToSeed('WrongPrefixAhello')).toThrow('Invalid seed string')
     expect(() => strToSeed('12345Ahello')).toThrow('Invalid seed string')

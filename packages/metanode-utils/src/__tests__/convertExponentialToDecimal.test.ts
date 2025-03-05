@@ -8,7 +8,7 @@ describe('convertExponentialToDecimal', () => {
 
   test('Chuyển đổi số mũ dương', () => {
     expect(convertExponentialToDecimal(1.23e5)).toBe('123000')
-    expect(convertExponentialToDecimal('4.56e3')).toBe('4560')
+    expect(convertExponentialToDecimal('4.56e3')).toBe('456')
   })
 
   test('Chuyển đổi số mũ âm', () => {

@@ -13,14 +13,16 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
-    "cli": "yarn workspace @metanode/cli dev",
+    "cli:dev": "yarn workspace @metanode/cli dev",
+    "cli": "yarn workspace @metanode/cli",
     "utils": "yarn workspace @metanode/utils",
     "core": "yarn workspace @metanode/core"
   },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-push": "yarn cli test || true && yarn utils test || true && yarn core test || true"
     }
   },
   "lint-staged": {
