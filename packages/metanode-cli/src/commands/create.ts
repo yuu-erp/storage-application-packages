@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import fs from 'fs'
 import { FolderDescriptions, LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
 import { FolderApps, ProjectType } from '../type'
-import { createDirectory, handlePath } from '../utils'
+import { copyTemplate, createDirectory, handlePath } from '../utils'
 import { isValidFolderName } from '../utils/validators'
 
 const getFolderChildApps = (path: string) => {
@@ -86,6 +86,7 @@ export default (program: Command) => {
         const projectDirectory = `../../../apps/${folderType}/${projectName}/`
         const templateDirectory = `./src/templates/${projectType}`
         createDirectory(projectDirectory)
+        await copyTemplate(templateDirectory, projectDirectory)
       } catch (error: unknown) {
         console.error('⚠️ Đã xảy ra lỗi:', (error as Error).message)
         process.exit(1)
