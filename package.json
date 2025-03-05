@@ -16,7 +16,8 @@
     "cli:dev": "yarn workspace @metanode/cli dev",
     "cli": "yarn workspace @metanode/cli",
     "utils": "yarn workspace @metanode/utils",
-    "core": "yarn workspace @metanode/core"
+    "core": "yarn workspace @metanode/core",
+    "test": "yarn cli test"
   },
   "husky": {
     "hooks": {
