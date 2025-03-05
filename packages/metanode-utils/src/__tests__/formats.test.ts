@@ -1,4 +1,15 @@
-import { formatAddress, removeAccents, shortString, truncateString } from '../formats'
+import {
+  formatAddress,
+  hexToHsl,
+  hexToRgb,
+  hslToHex,
+  removeAccents,
+  SEED_SECRECT,
+  seedToString,
+  shortString,
+  strToSeed,
+  truncateString
+} from '../formats'
 
 describe('Format Functions', () => {
   describe('formatAddress - Định dạng địa chỉ', () => {
@@ -98,6 +109,166 @@ describe('Format Functions', () => {
     it('Xử lý chính xác chuỗi chỉ chứa ký tự có dấu', () => {
       expect(removeAccents('ắặâầểễếệ')).toBe('aaaaeeee')
       expect(removeAccents('ỳỷỹýỵ')).toBe('yyyyy')
+    })
+  })
+
+  describe('Hàm seedToString', () => {
+    test('Trả về lỗi nếu danh sách không có đúng 24 phần tử', () => {
+      expect(() => seedToString([])).toThrow('Invalid list seed')
+      expect(() => seedToString(['word'])).toThrow('Invalid list seed')
+      expect(() => seedToString(Array(23).fill('test'))).toThrow('Invalid list seed')
+      expect(() => seedToString(Array(25).fill('test'))).toThrow('Invalid list seed')
+    })
+
+    test('Chuyển đổi danh sách 24 chuỗi đúng định dạng', () => {
+      const input = Array(24).fill('a') // Danh sách 24 chuỗi có độ dài 1
+      const output = `${SEED_SECRECT}${input.map((word) => `A${word}`).join('')}`
+      expect(seedToString(input)).toBe(output)
+    })
+
+    test('Xử lý danh sách có độ dài khác nhau', () => {
+      const input = [
+        'a',
+        'bb',
+        'ccc',
+        'dddd',
+        'eeeee',
+        'ffffff',
+        'ggggggg',
+        'hhhhhhhh',
+        'iiiiiiiii',
+        'jjjjjjjjjj',
+        'kkkkkkkkkkk',
+        'llllllllllll',
+        'mmmmmmmmmmmmm',
+        'nnnnnnnnnnnnnn',
+        'ooooooooooooooo',
+        'pppppppppppppppp',
+        'qqqqqqqqqqqqqqqqq',
+        'rrrrrrrrrrrrrrrrrr',
+        'sssssssssssssssssss',
+        'tttttttttttttttttttt',
+        'uuuuuuuuuuuuuuuuuuuuu',
+        'vvvvvvvvvvvvvvvvvvvvvvvv',
+        'www',
+        'xxxx'
+      ] // Đủ 24 phần tử
+      const expectedPrefix = `${SEED_SECRECT}`
+      const expectedSuffix =
+        'AaBbbCcccDddddEeeeeeFffffffGgggggggHhhhhhhhhIiiiiiiiiiJjjjjjjjjjjKkkkkkkkkkkkLllllllllllllMmmmmmmmmmmmmmNnnnnnnnnnnnnnnOoooooooooooooooPppppppppppppppppQqqqqqqqqqqqqqqqqqRrrrrrrrrrrrrrrrrrrSsssssssssssssssssssTttttttttttttttttttttUuuuuuuuuuuuuuuuuuuuuuXvvvvvvvvvvvvvvvvvvvvvvvvCwwwDxxxx'
+      expect(seedToString(input)).toBe(expectedPrefix + expectedSuffix)
+    })
+  })
+
+  describe('Hàm strToSeed', () => {
+    test('Trả về lỗi nếu chuỗi không có đúng prefix', () => {
+      expect(() => strToSeed('WrongPrefixAhello')).toThrow('Invalid seed string')
+      expect(() => strToSeed('12345Ahello')).toThrow('Invalid seed string')
+      expect(() => strToSeed('')).toThrow('Invalid seed string')
+    })
+
+    test('Chuyển đổi chuỗi hợp lệ thành mảng 24 phần tử', () => {
+      const seedList = [
+        'a',
+        'bb',
+        'ccc',
+        'dddd',
+        'eeeee',
+        'ffffff',
+        'ggggggg',
+        'hhhhhhhh',
+        'iiiiiiiii',
+        'jjjjjjjjjj',
+        'kkkkkkkkkkk',
+        'llllllllllll',
+        'mmmmmmmmmmmmm',
+        'nnnnnnnnnnnnnn',
+        'ooooooooooooooo',
+        'pppppppppppppppp',
+        'qqqqqqqqqqqqqqqqq',
+        'rrrrrrrrrrrrrrrrrr',
+        'sssssssssssssssssss',
+        'tttttttttttttttttttt',
+        'uuuuuuuuuuuuuuuuuuuuu',
+        'vvvvvvvvvvvvvvvvvvvvvvvv',
+        'www',
+        'xxxx'
+      ]
+
+      // Tạo chuỗi hợp lệ dựa trên quy tắc trong seedToString
+      const encodedSeed =
+        SEED_SECRECT +
+        seedList.map((word) => `${String.fromCharCode(64 + word.length)}${word}`).join('')
+
+      expect(strToSeed(encodedSeed)).toEqual(seedList)
+    })
+
+    test('Trả về mảng có đúng 24 phần tử', () => {
+      const seedList = Array(24).fill('test') // 24 từ 'test'
+      const encodedSeed = SEED_SECRECT + seedList.map((word) => `D${word}`).join('') // 'D' -> length = 4
+      expect(strToSeed(encodedSeed)).toHaveLength(24)
+    })
+  })
+
+  describe('hexToRgb', () => {
+    test('Chuyển đổi mã màu hex #FFFFFF thành rgb(255, 255, 255)', () => {
+      expect(hexToRgb('#FFFFFF')).toBe('rgb(255, 255, 255)')
+    })
+
+    test('Chuyển đổi mã màu hex #000000 thành rgb(0, 0, 0)', () => {
+      expect(hexToRgb('#000000')).toBe('rgb(0, 0, 0)')
+    })
+
+    test('Chuyển đổi mã màu hex #FF5733 thành rgb(255, 87, 51)', () => {
+      expect(hexToRgb('#FF5733')).toBe('rgb(255, 87, 51)')
+    })
+
+    test('Chuyển đổi mã màu hex không có dấu # (FF5733) thành rgb(255, 87, 51)', () => {
+      expect(hexToRgb('FF5733')).toBe('rgb(255, 87, 51)')
+    })
+
+    test('Chuyển đổi mã màu hex chữ thường (#ff5733) thành rgb(255, 87, 51)', () => {
+      expect(hexToRgb('#ff5733')).toBe('rgb(255, 87, 51)')
+    })
+
+    test('Chuyển đổi mã màu hex #00FF00 thành rgb(0, 255, 0)', () => {
+      expect(hexToRgb('#00FF00')).toBe('rgb(0, 255, 0)')
+    })
+  })
+
+  describe('hslToHex', () => {
+    test('Chuyển đổi HSL(0, 0%, 0%) thành #000000', () => {
+      expect(hslToHex(0, 0, 0)).toBe('#000000')
+    })
+
+    test('Chuyển đổi HSL(0, 0%, 100%) thành #ffffff', () => {
+      expect(hslToHex(0, 0, 100)).toBe('#ffffff')
+    })
+
+    test('Chuyển đổi HSL(0, 100%, 50%) thành #ff0000', () => {
+      expect(hslToHex(0, 100, 50)).toBe('#ff0000')
+    })
+
+    test('Chuyển đổi HSL(120, 100%, 50%) thành #00ff00', () => {
+      expect(hslToHex(120, 100, 50)).toBe('#00ff00')
+    })
+  })
+
+  describe('hexToHsl', () => {
+    test('Chuyển đổi #000000 thành HSL(0, 0%, 0%)', () => {
+      expect(hexToHsl('#000000')).toEqual({ h: 0, s: 0, l: 0 })
+    })
+
+    test('Chuyển đổi #ffffff thành HSL(0, 0%, 100%)', () => {
+      expect(hexToHsl('#ffffff')).toEqual({ h: 0, s: 0, l: 100 })
+    })
+
+    test('Chuyển đổi #ff0000 thành HSL(0, 100%, 50%)', () => {
+      expect(hexToHsl('#ff0000')).toEqual({ h: 0, s: 100, l: 50 })
+    })
+
+    test('Chuyển đổi #00ff00 thành HSL(120, 100%, 50%)', () => {
+      expect(hexToHsl('#00ff00')).toEqual({ h: 120, s: 100, l: 50 })
     })
   })
 })

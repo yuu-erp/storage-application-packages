@@ -179,13 +179,13 @@ describe('Handle Functions', () => {
     })
 
     test('Chuỗi hex có số ký tự lẻ gây lỗi', () => {
-      expect(() => hexToUtf8('123')).toThrow('không phải chuỗi hash')
-      expect(() => hexToUtf8('a1b')).toThrow('không phải chuỗi hash')
+      expect(() => hexToUtf8('123')).toThrow('Invalid hex string')
+      expect(() => hexToUtf8('a1b')).toThrow('Invalid hex string')
     })
 
     test('Chuỗi hex không hợp lệ gây lỗi', () => {
-      expect(() => hexToUtf8('ZZZZ')).toThrow('Không phải hex hợp lệ')
-      expect(() => hexToUtf8('g1h2')).toThrow('Không phải hex hợp lệ')
+      expect(() => hexToUtf8('ZZZZ')).toThrow('Invalid hex string')
+      expect(() => hexToUtf8('g1h2')).toThrow('Invalid hex string')
     })
   })
 
