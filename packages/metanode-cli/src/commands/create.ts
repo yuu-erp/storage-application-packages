@@ -2,9 +2,10 @@ import { input, select } from '@inquirer/prompts'
 import { Command } from 'commander'
 import fs from 'fs'
 import { FolderDescriptions, LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
-import { FolderApps, ProjectType } from '../type'
-import { copyTemplate, createDirectory, handlePath } from '../utils'
+import { FolderApps } from '../type'
+import { copyTemplate, createDirectory, handlePath, updateFileContent } from '../utils'
 import { isValidFolderName } from '../utils/validators'
+import { Variable } from '../utils/replaceTemplate'
 
 const getFolderChildApps = (path: string) => {
   return fs
@@ -66,10 +67,6 @@ const promptProjectPort = async () => {
   }
 }
 
-const getTemplateDirectory = (projectType: ProjectType) => {
-  console.log(projectType)
-}
-
 export default (program: Command) => {
   return program
     .command('create')
@@ -81,12 +78,22 @@ export default (program: Command) => {
         const projectName = await promptProjectName()
         const projectEnv = await promptProjectEnv()
         const projectPort = await promptProjectPort()
-
-        console.log({ folderType, projectType, projectName, projectEnv, projectPort })
+        console.log({
+          projectEnv,
+          projectPort
+        })
         const projectDirectory = `../../../apps/${folderType}/${projectName}/`
-        const templateDirectory = `./src/templates/${projectType}`
         createDirectory(projectDirectory)
-        await copyTemplate(templateDirectory, projectDirectory)
+        copyTemplate(projectType, projectDirectory)
+        const variables: Variable[] = [
+          {
+            replacer: '"name": ".*?"',
+            value: `"name": "@${folderType.replace('-', '')}/${projectName
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, '')}"`
+          }
+        ]
+        updateFileContent(`${projectDirectory}/package.json`, variables)
       } catch (error: unknown) {
         console.error('⚠️ Đã xảy ra lỗi:', (error as Error).message)
         process.exit(1)
