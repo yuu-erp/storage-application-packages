@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
 import { replaceTemplate, Variable } from './replaceTemplate'
+import { PackageManager } from '../type'
 
 /**
  * Chuyển đổi đường dẫn tương đối thành đường dẫn tuyệt đối.
@@ -61,4 +62,14 @@ export const updateFileContent = (filePath: string, variables: Variable[]) => {
   const updatedContent = replaceTemplate(fileContent, variables)
   fs.writeFileSync(filePathsrc, updatedContent, 'utf8')
   console.log(`✅ Nội dung file đã được cập nhật: ${filePath}`)
+}
+
+/**
+ * Xác định trình quản lý package hiện tại bằng cách kiểm tra biến môi trường.
+ * @returns {PackageManager} - Trả về trình quản lý package hiện tại (yarn, pnpm, npm).
+ */
+export const getPackageManager = (): PackageManager => {
+  if (process.env.npm_execpath?.includes(PackageManager.YARN)) return PackageManager.YARN
+  if (process.env.npm_execpath?.includes(PackageManager.PNPM)) return PackageManager.PNPM
+  return PackageManager.NPM
 }
