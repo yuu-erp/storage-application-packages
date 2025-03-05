@@ -4,7 +4,7 @@
   "description": "The Metanode CLI is a command-line tool for creating and managing Metanode projects.",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "apps/*/**",
     "packages/*"
   ],
   "scripts": {

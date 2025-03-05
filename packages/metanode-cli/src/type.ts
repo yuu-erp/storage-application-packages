@@ -18,6 +18,14 @@ export enum FolderApps {
   METANODE_NATIVES = 'metanode-natives',
   METANODE_WEBS = 'metanode-webs'
 }
+/**
+ * Enum đại diện cho các trình quản lý package phổ biến.
+ */
+export enum PackageManager {
+  YARN = 'yarn',
+  PNPM = 'pnpm',
+  NPM = 'npm'
+}
 
 export type ENVS = {
   name: string

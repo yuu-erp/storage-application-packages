@@ -1,31 +1,12 @@
 import { input, select } from '@inquirer/prompts'
 import { Command } from 'commander'
 import fs from 'fs'
-import { FolderDescriptions, LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
-import { FolderApps } from '../type'
+import { LIST_ENVIRONMENT, LIST_PROJECT } from '../constant'
+import { EnumTypeEnv, FolderApps } from '../type'
 import { copyTemplate, createDirectory, handlePath, updateFileContent } from '../utils'
-import { isValidFolderName } from '../utils/validators'
+import { promptFolderType } from '../utils/promptFolderType'
 import { Variable } from '../utils/replaceTemplate'
-
-const getFolderChildApps = (path: string) => {
-  return fs
-    .readdirSync(handlePath(path), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => {
-      return {
-        name: dirent.name,
-        value: dirent.name as FolderApps,
-        description: FolderDescriptions[dirent.name as FolderApps]
-      }
-    })
-}
-
-const promptFolderType = async () => {
-  return await select({
-    message: 'Please select the type of project you want to create:',
-    choices: getFolderChildApps('../../../apps')
-  })
-}
+import { isValidFolderName } from '../utils/validators'
 
 const promptProjectType = async () => {
   return await select({
@@ -52,19 +33,49 @@ const promptProjectEnv = async () => {
   })
 }
 
-const promptProjectPort = async () => {
-  while (true) {
-    const portInput = await input({
-      message: 'Choose a port number for development server (default is 3000):',
-      default: '3000'
-    })
-
-    const port = parseInt(portInput, 10)
-    if (!isNaN(port) && port >= 1 && port <= 65535) {
-      return port
+const updateWorkspaceName = (
+  projectDirectory: string,
+  folderType: FolderApps,
+  projectName: string
+) => {
+  const variables: Variable[] = [
+    {
+      replacer: '"name": ".*?"',
+      value: `"name": "@${folderType.replace('-', '')}/${projectName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')}"`
     }
-    console.error('❌ Please enter a valid port number (1-65535).')
+  ]
+  updateFileContent(`${projectDirectory}/package.json`, variables)
+}
+
+const createEnvironmentVariable = (projectEnv: EnumTypeEnv, projectDirectory: string) => {
+  const envFiles: Record<EnumTypeEnv, Record<string, string>> = {
+    [EnumTypeEnv.TEST]: { '.env.testnet': `NODE_ENV=test\n` },
+    [EnumTypeEnv.DEV]: { '.env.devnet': `NODE_ENV=development\n` },
+    [EnumTypeEnv.WORK]: { '.env.worknet': `NODE_ENV=staging\n` },
+    [EnumTypeEnv.MAIN]: {
+      '.env': `NODE_ENV=production\n`
+    },
+    [EnumTypeEnv.ALL]: {
+      '.env': `NODE_ENV=production\n`,
+      '.env.testnet': `NODE_ENV=test\n`,
+      '.env.devnet': `NODE_ENV=development\n`,
+      '.env.worknet': `NODE_ENV=staging\n`
+    }
   }
+
+  const envConfig = envFiles[projectEnv] || {}
+
+  Object.entries(envConfig).forEach(([fileName, content]) => {
+    const filePath = `${projectDirectory}/${fileName}`
+    try {
+      fs.writeFileSync(handlePath(filePath), content)
+      console.log(`✅ File ${fileName} đã được tạo tại: ${filePath}`)
+    } catch (error) {
+      console.error(`❌ Lỗi khi tạo file ${fileName}:`, (error as Error).message)
+    }
+  })
 }
 
 export default (program: Command) => {
@@ -77,23 +88,11 @@ export default (program: Command) => {
         const projectType = await promptProjectType()
         const projectName = await promptProjectName()
         const projectEnv = await promptProjectEnv()
-        const projectPort = await promptProjectPort()
-        console.log({
-          projectEnv,
-          projectPort
-        })
         const projectDirectory = `../../../apps/${folderType}/${projectName}/`
         createDirectory(projectDirectory)
         copyTemplate(projectType, projectDirectory)
-        const variables: Variable[] = [
-          {
-            replacer: '"name": ".*?"',
-            value: `"name": "@${folderType.replace('-', '')}/${projectName
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '')}"`
-          }
-        ]
-        updateFileContent(`${projectDirectory}/package.json`, variables)
+        updateWorkspaceName(projectDirectory, folderType, projectName)
+        createEnvironmentVariable(projectEnv, projectDirectory)
       } catch (error: unknown) {
         console.error('⚠️ Đã xảy ra lỗi:', (error as Error).message)
         process.exit(1)
