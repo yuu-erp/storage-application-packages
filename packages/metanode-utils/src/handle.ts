@@ -1,4 +1,17 @@
 /**
+ * Lấy phần cuối cùng của URL (pathname) từ `window.location.href`,
+ * loại bỏ phần query string nếu có.
+ *
+ * @returns Phần cuối cùng của URL sau dấu chấm hỏi ('?') nếu có, nếu không trả về URL gốc.
+ *
+ * @note Đã tối ưu
+ */
+export const getLastPathname = (): string => {
+  // Tách URL theo dấu hỏi (?) và dùng pop() lấy phần cuối cùng sau dấu '?'
+  return window.location.href.split('?').pop() || ''
+}
+
+/**
  * Xử lý lỗi và trả về thông điệp lỗi thích hợp.
  * Hàm này sẽ kiểm tra nhiều trường hợp trong đối tượng lỗi và trả về thông điệp lỗi đầu tiên tìm được.
  *
@@ -6,7 +19,6 @@
  * @returns Thông điệp lỗi nếu tìm thấy, nếu không sẽ trả về lỗi dưới dạng chuỗi JSON.
  */
 export const handleMessageError = (error: any): string => {
-  // Kiểm tra các trường hợp phổ biến để lấy thông điệp lỗi
   if (typeof error === 'string') return error
   return (
     error?.data?.description || // Trường hợp có mô tả lỗi trong `data.description`
@@ -221,21 +233,32 @@ export function convertExponentialToDecimal(numberInput: number | string) {
  * mulTenPow("0.0123", 3) // "12.3"
  * mulTenPow("100", -2) // "1"
  * mulTenPow(456, -3) // "0.456"
+ *
+ * @note Đã cập nhật
  */
 export function mulTenPow(number: string | number | undefined, decimal: number): string {
   if (typeof number === 'undefined') return ''
   const num = String(number)
-  if (!decimal) return num
+  if (num === '0') return '0' // Trường hợp đặc biệt cho số 0
+
+  // Loại bỏ số 0 ở đầu nếu decimal = 0
+  if (!decimal) {
+    let cleanedNum = num.replace(/^0+/, '') || '0'
+    return cleanedNum.startsWith('.') ? '0' + cleanedNum : cleanedNum
+  }
 
   let result = ''
 
   // Tách phần nguyên và phần thập phân (nếu có)
-  const [intPart, decPart = ''] = num.split('.')
+  let [intPart, decPart = ''] = num.split('.')
+
+  // Loại bỏ toàn bộ số 0 ở đầu
+  intPart = intPart.replace(/^0+/, '') || '0'
 
   if (decimal > 0) {
     // Dịch dấu thập phân sang phải
     const extendedDec = decPart + '0'.repeat(Math.max(0, decimal - decPart.length))
-    result = intPart.replace(/^0+/, '') + extendedDec.slice(0, decimal)
+    result = (intPart + extendedDec.slice(0, decimal)).replace(/^0+/, '')
 
     // Nếu còn phần thập phân sau khi dịch chuyển
     if (extendedDec.length > decimal) {
@@ -245,15 +268,17 @@ export function mulTenPow(number: string | number | undefined, decimal: number):
     // Dịch dấu thập phân sang trái
     const absDecimal = Math.abs(decimal)
     if (intPart.length <= absDecimal) {
-      result = `0.${`${'0'.repeat(absDecimal - intPart.length)}${intPart}${decPart}`.replace(/0+$/, '')}`
+      result = `0.${'0'.repeat(absDecimal - intPart.length)}${intPart}${decPart}`.replace(/0+$/, '')
     } else {
-      result = `${intPart
-        .slice(0, -absDecimal)
-        .replace(/^0+/, '')}.${`${intPart.slice(-absDecimal)}${decPart}`.replace(/0+$/, '')}`
+      result = `${intPart.slice(0, -absDecimal).replace(/^0+/, '')}.${(intPart.slice(-absDecimal) + decPart).replace(/0+$/, '')}`
     }
   }
 
   // Xóa dấu "." nếu không còn phần thập phân
   if (result.endsWith('.')) result = result.slice(0, -1)
+
+  // Nếu kết quả chỉ còn ".", thêm "0" vào trước
+  if (result.startsWith('.')) result = '0' + result
+
   return result
 }
