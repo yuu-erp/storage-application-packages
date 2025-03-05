@@ -1,4 +1,17 @@
 /**
+ * Lấy phần cuối cùng của URL (pathname) từ `window.location.href`,
+ * loại bỏ phần query string nếu có.
+ *
+ * @returns Phần cuối cùng của URL sau dấu chấm hỏi ('?') nếu có, nếu không trả về URL gốc.
+ *
+ * @note Đã tối ưu
+ */
+export const getLastPathname = (): string => {
+  // Tách URL theo dấu hỏi (?) và dùng pop() lấy phần cuối cùng sau dấu '?'
+  return window.location.href.split('?').pop() || ''
+}
+
+/**
  * Xử lý lỗi và trả về thông điệp lỗi thích hợp.
  * Hàm này sẽ kiểm tra nhiều trường hợp trong đối tượng lỗi và trả về thông điệp lỗi đầu tiên tìm được.
  *
@@ -6,7 +19,6 @@
  * @returns Thông điệp lỗi nếu tìm thấy, nếu không sẽ trả về lỗi dưới dạng chuỗi JSON.
  */
 export const handleMessageError = (error: any): string => {
-  // Kiểm tra các trường hợp phổ biến để lấy thông điệp lỗi
   if (typeof error === 'string') return error
   return (
     error?.data?.description || // Trường hợp có mô tả lỗi trong `data.description`
@@ -218,12 +230,17 @@ export function convertExponentialToDecimal(numberInput: number | string) {
 export function mulTenPow(number: string | number | undefined, decimal: number): string {
   if (typeof number === 'undefined') return ''
   const num = String(number)
+  if (num === '0') return '0' // Trường hợp đặc biệt cho số 0
   if (!decimal) return num
 
   let result = ''
 
   // Tách phần nguyên và phần thập phân (nếu có)
-  const [intPart, decPart = ''] = num.split('.')
+  let [intPart, decPart = ''] = num.split('.')
+
+  // Đảm bảo phần nguyên không bị giữ số 0 không cần thiết nhưng vẫn giữ số 0 nếu cần
+  intPart = intPart.replace(/^0+(\d)/, '$1')
+  if (intPart === '') intPart = '0'
 
   if (decimal > 0) {
     // Dịch dấu thập phân sang phải

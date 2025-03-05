@@ -1,6 +1,14 @@
 import { debounce } from '../handle'
 
 describe('Hàm debounce - Trì hoãn thực thi hàm', () => {
+  beforeEach(() => {
+    jest.useFakeTimers() // Kích hoạt fake timers trước mỗi test
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers() // Xóa hết timer sau mỗi test để tránh ảnh hưởng test khác
+  })
+
   test('Hàm được gọi sau khoảng thời gian chờ', () => {
     const mockFn = jest.fn()
     const debouncedFn = debounce(mockFn, 500)
