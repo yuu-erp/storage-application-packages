@@ -100,8 +100,11 @@ export function hexToString(hex: string) {
  * @throws Lỗi nếu chuỗi hex có số ký tự lẻ.
  */
 export function hexToUtf8(hex: string) {
+  if (hex === '') {
+    return ''
+  }
   // Ensure that the hex string has an even number of characters
-  if (typeof hex === 'string' && hex.length % 2 !== 0) {
+  if (typeof hex !== 'string' || hex.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(hex)) {
     throw new Error('Invalid hex string')
   }
 
@@ -172,32 +175,36 @@ export function convertExponentialToDecimal(numberInput: number | string) {
   // Nếu không có số mũ, trả về nguyên giá trị
   if (!exponent) return sign + numStr
 
-  // Xác định dấu phân cách thập phân theo chuẩn hệ thống
-  const decimalSeparator = (1.1).toLocaleString().substring(1, 2)
-  const [leftPart, rightPart = ''] = base.split(decimalSeparator)
+  // Chuyển dấu chấm thành chuẩn xử lý (dùng ".")
+  const [leftPart, rightPart = ''] = base.split('.')
   const expValue = parseInt(exponent, 10)
 
   let result
 
   if (expValue > 0) {
-    // Dịch chuyển dấu thập phân sang phải
+    // Đẩy dấu thập phân sang phải
     const rightPadding = Math.max(expValue - rightPart.length, 0)
     const rightExpanded = rightPart + '0'.repeat(rightPadding)
     result =
-      leftPart + rightExpanded.slice(0, expValue) + decimalSeparator + rightExpanded.slice(expValue)
-
-    // Xóa dấu thập phân nếu không còn phần thập phân
-    if (result.endsWith(decimalSeparator)) result = result.slice(0, -1)
+      leftPart +
+      rightExpanded.slice(0, expValue) +
+      (rightExpanded.slice(expValue) ? '.' + rightExpanded.slice(expValue) : '')
   } else {
-    // Dịch chuyển dấu thập phân sang trái
+    // Đẩy dấu thập phân sang trái
     const leftPadding = Math.max(Math.abs(expValue) - leftPart.length, 0)
     const leftExpanded = '0'.repeat(leftPadding) + leftPart
-    result =
-      leftExpanded.slice(0, expValue) + decimalSeparator + leftExpanded.slice(expValue) + rightPart
+    result = leftExpanded.slice(0, expValue) + '.' + leftExpanded.slice(expValue) + rightPart
 
     // Đảm bảo số có dạng hợp lệ, thêm '0' nếu cần
-    if (result.startsWith(decimalSeparator)) result = '0' + result
+    if (result.startsWith('.')) result = '0' + result
   }
+
+  // Loại bỏ các số 0 không cần thiết ở đầu và cuối
+  result = result.replace(/^(-?)0+(\d)/, '$1$2') // Xóa số 0 thừa ở đầu
+  result = result.replace(/\.?0+$/, '') // Xóa số 0 thừa ở cuối
+
+  // Trả về 0 nếu kết quả là rỗng hoặc có dạng `-0`
+  if (result === '' || result === '-') return '0'
 
   return sign + result
 }
