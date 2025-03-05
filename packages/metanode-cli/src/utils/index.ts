@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import fsExtra from 'fs-extra'
 
 /**
  * Tạo đường dẫn tuyệt đối từ filePath và basePath.
@@ -25,29 +26,12 @@ export const createDirectory = (dirPath: string): void => {
   }
 }
 
-// Hàm sao chép template
 export const copyTemplate = async (source: string, destination: string) => {
   try {
-    // Đảm bảo thư mục đích tồn tại
-    await fs.promises.mkdir(destination, { recursive: true })
-
-    // Đọc toàn bộ nội dung của thư mục nguồn
-    const entries = await fs.promises.readdir(source, { withFileTypes: true })
-
-    // Sao chép từng mục (file hoặc thư mục)
-    for (const entry of entries) {
-      const srcPath = path.join(source, entry.name)
-      const destPath = path.join(destination, entry.name)
-
-      if (entry.isDirectory()) {
-        // Nếu là thư mục, đệ quy sao chép
-        await copyTemplate(srcPath, destPath)
-      } else {
-        // Nếu là file, sao chép trực tiếp
-        await fs.promises.copyFile(srcPath, destPath)
-      }
-    }
-    console.log(`✅ Đã sao chép template từ ${source} sang ${destination}`)
+    console.log('copyTemplate - source: ', source)
+    console.log('copyTemplate - destination: ', destination)
+    // await fsExtra.copy(source, destination, { overwrite: true }) // Sao chép thư mục và file
+    // console.log(`✅ Đã sao chép template từ ${source} sang ${destination}`)
   } catch (error) {
     throw new Error(`Không thể sao chép template: ${(error as Error).message}`)
   }
