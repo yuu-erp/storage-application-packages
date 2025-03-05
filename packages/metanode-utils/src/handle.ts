@@ -171,23 +171,22 @@ export const stringToBytes32 = (str: string): string => {
  * @param {number | string} numberInput - Số cần chuyển đổi (có thể là số hoặc chuỗi).
  * @returns {string} - Chuỗi số ở dạng thập phân đầy đủ, giữ nguyên dấu nếu có.
  */
-export function convertExponentialToDecimal(numberInput: number | string) {
+export function convertExponentialToDecimal(numberInput: number | string): string {
   let numStr = String(numberInput)
   let sign = ''
 
-  // Kiểm tra và lưu lại dấu âm nếu có
+  // Kiểm tra dấu âm
   if (numStr.charAt(0) === '-') {
     sign = '-'
     numStr = numStr.substring(1)
   }
 
-  // Tách phần cơ số và số mũ (exponent) nếu có
+  // Tách phần cơ số và số mũ (exponent)
   const [base, exponent] = numStr.split(/[eE]/)
 
   // Nếu không có số mũ, trả về nguyên giá trị
   if (!exponent) return sign + numStr
 
-  // Chuyển dấu chấm thành chuẩn xử lý (dùng ".")
   const [leftPart, rightPart = ''] = base.split('.')
   const expValue = parseInt(exponent, 10)
 
@@ -195,29 +194,34 @@ export function convertExponentialToDecimal(numberInput: number | string) {
 
   if (expValue > 0) {
     // Đẩy dấu thập phân sang phải
-    const rightPadding = Math.max(expValue - rightPart.length, 0)
-    const rightExpanded = rightPart + '0'.repeat(rightPadding)
-    result =
-      leftPart +
-      rightExpanded.slice(0, expValue) +
-      (rightExpanded.slice(expValue) ? '.' + rightExpanded.slice(expValue) : '')
+    const combined = leftPart + rightPart // Gộp phần nguyên và phần thập phân
+    const moveIndex = leftPart.length + expValue
+
+    if (moveIndex >= combined.length) {
+      // Nếu di chuyển dấu phẩy ra ngoài phạm vi chuỗi, chỉ cần thêm 0
+      result = combined + '0'.repeat(moveIndex - combined.length)
+    } else {
+      // Chèn lại dấu thập phân vào vị trí mới
+      result = combined.slice(0, moveIndex) + '.' + combined.slice(moveIndex)
+    }
   } else {
     // Đẩy dấu thập phân sang trái
-    const leftPadding = Math.max(Math.abs(expValue) - leftPart.length, 0)
-    const leftExpanded = '0'.repeat(leftPadding) + leftPart
-    result = leftExpanded.slice(0, expValue) + '.' + leftExpanded.slice(expValue) + rightPart
-
-    // Đảm bảo số có dạng hợp lệ, thêm '0' nếu cần
-    if (result.startsWith('.')) result = '0' + result
+    const absExp = Math.abs(expValue)
+    const paddingZeros = '0'.repeat(Math.max(0, absExp - leftPart.length))
+    result = '0.' + paddingZeros + leftPart + rightPart
   }
 
-  // Loại bỏ các số 0 không cần thiết ở đầu và cuối
-  result = result.replace(/^(-?)0+(\d)/, '$1$2') // Xóa số 0 thừa ở đầu
-  result = result.replace(/\.?0+$/, '') // Xóa số 0 thừa ở cuối
+  // **Loại bỏ số 0 không cần thiết nhưng giữ đúng định dạng**
+  result = result.replace(/^(-?)0+(\d)/, '$1$2') // Loại bỏ số 0 ở đầu (trừ số thập phân `0.x`)
+  result = result.replace(/^(-?)0+(\.)/, '$1$2') // Đảm bảo số thập phân hợp lệ
+  result = result.replace(/\.$/, '') // Xóa dấu `.` dư nếu có
 
-  // Trả về 0 nếu kết quả là rỗng hoặc có dạng `-0`
-  if (result === '' || result === '-') return '0'
+  // **Fix: Nếu kết quả bắt đầu bằng ".", thêm "0" vào trước**
+  if (result.startsWith('.')) result = '0' + result
 
+  if (sign + result === '-0') return '0'
+
+  // Trả về kết quả kèm dấu âm (nếu có)
   return sign + result
 }
 
