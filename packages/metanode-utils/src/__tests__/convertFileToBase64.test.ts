@@ -1,56 +1,58 @@
-import { convertFileToBase64 } from '../convert'
+import { convertFileToBase64 } from '../convert' // Đổi tên file import cho đúng
+import { jest } from '@jest/globals'
 
 describe('convertFileToBase64', () => {
-  beforeAll(() => {
-    global.window = global as any
-    global.FileReader = class {
-      result: string | ArrayBuffer | null = 'data:text/plain;base64,SGVsbG8gV29ybGQ='
-      onload: ((event: ProgressEvent) => void) | null = null
-      onerror: ((event: ProgressEvent) => void) | null = null
+  const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' })
 
-      readAsDataURL() {
-        setTimeout(() => {
-          if (this.onload) {
-            this.onload(new ProgressEvent('load'))
-          }
-        }, 100)
-      }
-    } as any
+  beforeEach(() => {
+    jest.restoreAllMocks() // Đảm bảo reset mock trước mỗi test case
   })
 
-  it('chuyển đổi file thành chuỗi base64', async () => {
-    const file = new File(['Hello World'], 'test.txt', { type: 'text/plain' })
-    const base64String = await convertFileToBase64(file)
-
-    expect(base64String).toContain('data:text/plain;base64,')
+  test('Chuyển đổi một File hợp lệ sang base64', async () => {
+    const base64String = await convertFileToBase64(mockFile)
+    expect(base64String).toMatch(/^data:text\/plain;base64,/)
   })
 
-  it('từ chối nếu trình duyệt không hỗ trợ FileReader', async () => {
-    const originalFileReader = global.FileReader
-    global.FileReader = undefined as any // Giả lập trình duyệt không hỗ trợ FileReader
-
-    const file = new File(['dummy content'], 'dummy.txt', { type: 'text/plain' })
-
-    await expect(convertFileToBase64(file)).rejects.toThrow(
-      'FileReader is not supported by this browser.'
-    )
-
-    global.FileReader = originalFileReader // Khôi phục FileReader
-  })
-
-  it('từ chối nếu FileReader xảy ra lỗi', async () => {
-    const file = new File(['dummy content'], 'dummy.txt', { type: 'text/plain' })
-
-    jest.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (
-      this: FileReader
-    ) {
-      setTimeout(() => {
-        if (this.onerror) {
-          this.onerror(new ProgressEvent('error') as unknown as ProgressEvent<FileReader>)
-        }
-      }, 100)
+  test('Báo lỗi nếu FileReader không được hỗ trợ', async () => {
+    jest.spyOn(window, 'FileReader').mockImplementation(() => {
+      throw new Error('FileReader is not supported')
     })
 
-    await expect(convertFileToBase64(file)).rejects.toThrow('Error reading file')
+    await expect(convertFileToBase64(mockFile)).rejects.toThrow('FileReader is not supported')
+  })
+
+  // test('Báo lỗi nếu đầu vào không phải là đối tượng File', async () => {
+  //   await expect(convertFileToBase64('invalid' as any)).rejects.toThrow(
+  //     'The provided input is not a valid File object.'
+  //   )
+  // })
+
+  test('should throw an error when input is not a File object', () => {
+    expect(() => convertFileToBase64('invali' as any)).toThrow(/File object/)
+  })
+
+  test('Từ chối nếu FileReader gặp lỗi', async () => {
+    const mockReader = {
+      readAsDataURL: jest.fn(),
+      onload: jest.fn(),
+      onerror: jest.fn()
+    }
+
+    jest.spyOn(window, 'FileReader').mockImplementation(() => mockReader as any)
+
+    const promise = convertFileToBase64(mockFile)
+    mockReader.onerror(new Event('error')) // Giả lập lỗi
+
+    await expect(promise).rejects.toThrow('Error reading file')
+  })
+
+  test('Từ chối nếu readAsDataURL ném ra một ngoại lệ', async () => {
+    jest.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(() => {
+      throw new Error('readAsDataURL failed')
+    })
+
+    await expect(convertFileToBase64(mockFile)).rejects.toThrow(
+      'Failed to read the file: readAsDataURL failed'
+    )
   })
 })
