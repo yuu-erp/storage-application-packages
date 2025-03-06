@@ -11,9 +11,8 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@system-core/*": ["packages/system-core/src/*"],
-      "@metanode-utils/*": ["packages/metanode-utils/src/*"],
-      "@smart-contract/*": ["packages/smart-contract/src/*"]
+      "@metanode/utils": ["packages/metanode-utils/src"],
+      "@metanode/utils/*": ["packages/metanode-utils/src/*"]
     }
   },
   "include": ["packages", "apps"],
