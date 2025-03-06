@@ -12,8 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
-      core: path.resolve(__dirname, '../../core'),
-      '@metanode/utils': path.resolve(__dirname, '../../..//packages/metanode-utils/src')
+      '@metanode/utils': path.resolve(__dirname, '../../../packages/metanode-utils/src')
     }
   },
   css: {
