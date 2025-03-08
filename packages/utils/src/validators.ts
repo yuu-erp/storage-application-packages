@@ -4,7 +4,7 @@
  * @returns true nếu hợp lệ, ngược lại false
  */
 export function isValidAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address)
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
 /**
@@ -14,10 +14,15 @@ export function isValidAddress(address: string): boolean {
  * @returns {boolean} `true` nếu chuỗi là địa chỉ hợp lệ, ngược lại trả về `false`.
  */
 export const isPrivateKey = (privateKey?: string) => {
-  if (!privateKey || typeof privateKey !== 'string') return false
-  const normalizedPrivateKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey
-  return normalizedPrivateKey.length === 64 && /^[a-fA-F0-9]{64}$/.test(normalizedPrivateKey)
-}
+  if (!privateKey || typeof privateKey !== "string") return false;
+  const normalizedPrivateKey = privateKey.startsWith("0x")
+    ? privateKey.slice(2)
+    : privateKey;
+  return (
+    normalizedPrivateKey.length === 64 &&
+    /^[a-fA-F0-9]{64}$/.test(normalizedPrivateKey)
+  );
+};
 
 /**
  * Kiểm tra xem một tên có hợp lệ hay không.
@@ -31,9 +36,9 @@ export const isPrivateKey = (privateKey?: string) => {
  * @returns {boolean} - `true` nếu hợp lệ, `false` nếu không hợp lệ.
  */
 export const isValidName = (name: string) => {
-  const regex = /^[A-Za-zÀ-ỹ\s]{2,50}$/
-  return regex.test(name.trim())
-}
+  const regex = /^[A-Za-zÀ-ỹ\s]{2,50}$/;
+  return regex.test(name.trim());
+};
 
 /**
  * Kiểm tra xem đối tượng có rỗng hay không.
@@ -44,19 +49,19 @@ export const isValidName = (name: string) => {
  */
 export const isEmpty = (d: any): boolean => {
   // Kiểm tra trường hợp nếu đối tượng là null hoặc undefined
-  if (d == null) return true
+  if (d == null) return true;
   // Kiểm tra các loại đối tượng có thể có thuộc tính length (ví dụ: chuỗi hoặc mảng)
-  if (typeof d === 'object') {
+  if (typeof d === "object") {
     // Trường hợp là mảng hoặc chuỗi
-    if (Array.isArray(d) || typeof d === 'string') {
-      return d.length === 0
+    if (Array.isArray(d) || typeof d === "string") {
+      return d.length === 0;
     }
     // Trường hợp là đối tượng, kiểm tra số lượng keys của nó
-    return Object.keys(d).length === 0
+    return Object.keys(d).length === 0;
   }
   // Nếu không phải object, trả về true nếu giá trị là falsy (undefined, null, false, 0, '', NaN)
-  return !d
-}
+  return !d;
+};
 
 /**
  * Checks if a string is a valid hexadecimal.
@@ -65,7 +70,9 @@ export const isEmpty = (d: any): boolean => {
  * @returns {boolean} - Returns true if the string is a valid hex, otherwise false.
  */
 export function isByte32(str: string): boolean {
-  return typeof str === 'string' && str.length === 64 && /^[0-9A-Fa-f]+$/.test(str)
+  return (
+    typeof str === "string" && str.length === 64 && /^[0-9A-Fa-f]+$/.test(str)
+  );
 }
 
 /**
@@ -79,11 +86,11 @@ export function isByte32(str: string): boolean {
  * @returns `true` nếu chuỗi là hex hợp lệ, ngược lại trả về `false`.
  */
 export function isHex(str: string) {
-  if (typeof str !== 'string') {
-    return false // Input must be a string
+  if (typeof str !== "string") {
+    return false; // Input must be a string
   }
 
   // Check if the string only contains hex characters (0-9, a-f, A-F) and has an even length
-  const hexRegex = /^[0-9a-fA-F]+$/
-  return str.length % 2 === 0 && hexRegex.test(str)
+  const hexRegex = /^[0-9a-fA-F]+$/;
+  return str.length % 2 === 0 && hexRegex.test(str);
 }

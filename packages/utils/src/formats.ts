@@ -20,7 +20,7 @@ export const truncateString = (
   str?: string,
   length = 6,
   position: "start" | "center" | "end" = "center",
-  placeholder: string = "..."
+  placeholder: string = "...",
 ): string => {
   if (!str || str.length <= length * 2) return str || ""; // Trả về chuỗi gốc nếu không cần cắt hoặc chuỗi trống
 

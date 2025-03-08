@@ -67,7 +67,7 @@ export const parseData = (data: any) => {
 
   return JSON.parse(
     //@ts-ignore
-    _data.replaceAll('"true"', "true").replaceAll('"false"', "false")
+    _data.replaceAll('"true"', "true").replaceAll('"false"', "false"),
   );
 };
 
