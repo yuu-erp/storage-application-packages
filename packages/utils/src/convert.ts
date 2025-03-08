@@ -11,34 +11,34 @@
  * @throws Lỗi nếu trình duyệt không hỗ trợ FileReader hoặc tệp không hợp lệ.
  */
 export const convertFileToBase64 = (file: File): Promise<string> => {
-  if (!("FileReader" in window)) {
-    throw new Error("FileReader is not supported by this browser.");
+  if (!('FileReader' in window)) {
+    throw new Error('FileReader is not supported by this browser.')
   }
 
   if (!(file instanceof File)) {
-    throw new Error("The provided input is not a valid File object.");
+    throw new Error('The provided input is not a valid File object.')
   }
 
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    const reader = new FileReader()
 
     reader.onload = () => {
       if (reader.result) {
-        resolve(reader.result as string);
+        resolve(reader.result as string)
       } else {
-        reject(new Error("FileReader did not return a result."));
+        reject(new Error('FileReader did not return a result.'))
       }
-    };
+    }
 
-    reader.onerror = () => reject(new Error("Error reading file"));
+    reader.onerror = () => reject(new Error('Error reading file'))
 
     try {
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file)
     } catch (err) {
-      reject(new Error("Failed to read the file: " + (err as Error).message));
+      reject(new Error('Failed to read the file: ' + (err as Error).message))
     }
-  });
-};
+  })
+}
 
 /**
  * Chuyển đổi một chuỗi Base64 thành đối tượng File.
@@ -57,15 +57,13 @@ export const convertBase64ToFile = (
   fileName: string,
   fileType: string
 ): File => {
-  const base64Data = base64String.split(",")[1];
+  const base64Data = base64String.split(',')[1]
   if (!base64Data) {
-    throw new Error("Invalid Base64 string: missing data part");
+    throw new Error('Invalid Base64 string: missing data part')
   }
 
-  const byteString = atob(base64Data);
-  const byteArray = new Uint8Array(
-    Array.from(byteString, (char) => char.charCodeAt(0))
-  );
+  const byteString = atob(base64Data)
+  const byteArray = new Uint8Array(Array.from(byteString, (char) => char.charCodeAt(0)))
 
-  return new File([byteArray], fileName, { type: fileType });
-};
+  return new File([byteArray], fileName, { type: fileType })
+}
