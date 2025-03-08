@@ -55,7 +55,7 @@ export const convertFileToBase64 = (file: File): Promise<string> => {
 export const convertBase64ToFile = (
   base64String: string,
   fileName: string,
-  fileType: string,
+  fileType: string
 ): File => {
   const base64Data = base64String.split(",")[1];
   if (!base64Data) {
@@ -64,7 +64,7 @@ export const convertBase64ToFile = (
 
   const byteString = atob(base64Data);
   const byteArray = new Uint8Array(
-    Array.from(byteString, (char) => char.charCodeAt(0)),
+    Array.from(byteString, (char) => char.charCodeAt(0))
   );
 
   return new File([byteArray], fileName, { type: fileType });
