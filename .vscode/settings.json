@@ -1,4 +1,5 @@
 {
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "[\\s\\S]*class[\\s\\S]*"],
   "eslint.workingDirectories": [
     {
       "mode": "auto"
