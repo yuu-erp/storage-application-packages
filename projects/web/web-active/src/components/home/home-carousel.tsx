@@ -44,7 +44,7 @@ function CarouselContent() {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-0">
+    <div className="fixed inset-0 z-0 bg-black/50 backdrop-blur-[300px]">
       <Carousel images={images} />
     </div>,
     document.body,
