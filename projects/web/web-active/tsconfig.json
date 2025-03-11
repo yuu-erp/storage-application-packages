@@ -7,12 +7,18 @@
       }
     ],
     "paths": {
-      "@public/*": ["./public/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@public/*": ["./public/*"]
     },
     "lib": ["dom", "dom.iterable", "esnext"],
     "isolatedModules": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "../../../social-sidebar.tsx"
+  ],
   "exclude": ["node_modules"]
 }
