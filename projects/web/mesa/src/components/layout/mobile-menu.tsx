@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Drawer,
@@ -14,11 +15,11 @@ import Logo from "./logo";
 import Navigation from "./navigation";
 
 interface MobileMenuProps {
-  mode: "light" | "dark";
   links: { path: string; label: string }[];
 }
 
-function MobileMenu({ mode, links }: MobileMenuProps) {
+function MobileMenu({ links }: MobileMenuProps) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,20 +28,20 @@ function MobileMenu({ mode, links }: MobileMenuProps) {
         <Menu
           className={cn(
             "h-6 w-6",
-            mode === "dark" ? "text-secondary-foreground" : "text-foreground",
+            ["/our-solution", "/tech-assurance", "/contact-us"].includes(
+              pathname,
+            )
+              ? "text-secondary-foreground"
+              : "text-foreground",
           )}
         />
       </DrawerTrigger>
       <DrawerContent className="h-full max-w-[280px] border-none p-4">
         <DrawerTitle className="mb-4">
-          <Logo theme={mode} />
+          <Logo />
         </DrawerTitle>
         <DrawerDescription />
-        <Navigation
-          links={links}
-          mode={mode}
-          closeDrawer={() => setOpen(false)}
-        />
+        <Navigation links={links} closeDrawer={() => setOpen(false)} />
       </DrawerContent>
     </Drawer>
   );

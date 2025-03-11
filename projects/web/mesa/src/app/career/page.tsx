@@ -218,7 +218,7 @@ function Career() {
                 </p>
                 <ul className="list-disc space-y-2 pl-4 text-lg">
                   <li>Pension scheme (5% Company contribution)</li>
-                  <li>Private Medical Insurance </li>
+                  <li>Private Medical Insurance</li>
                   <li>15 Days Annual Leave + 8 Swappable Public Holidays</li>
                   <li>Quarterly paid Well-being days + Birthday off</li>
                   <li>Values and Outcomes way of working (flexibility)</li>
@@ -257,7 +257,6 @@ function Career() {
               descriptions={["Business Relationship Management", "Full Time"]}
             />
           </div>
-
           <div className="flex justify-center">
             <button className="group rounded-xl bg-gradient-to-r from-[#7B51F1] to-[#CC5FFF] p-[2px]">
               <div className="min-w-72 rounded-[10px] bg-black px-8 py-4 text-lg font-bold text-secondary-foreground group-hover:opacity-90">

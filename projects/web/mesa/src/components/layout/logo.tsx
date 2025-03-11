@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import logoWhite from "@public/images/logo-white.png";
 import logo from "@public/images/logo.png";
 
-function Logo({ theme }: { theme: "light" | "dark" }) {
+function Logo() {
   const { resolvedTheme } = useTheme();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,7 +18,8 @@ function Logo({ theme }: { theme: "light" | "dark" }) {
   }, []);
 
   const logoSrc = mounted
-    ? theme === "dark" || resolvedTheme === "dark"
+    ? ["/our-solution", "/tech-assurance", "/contact-us"].includes(pathname) ||
+      resolvedTheme === "dark"
       ? logoWhite
       : logo
     : logo;
