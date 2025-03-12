@@ -1,11 +1,20 @@
 export class EventEmitter {
   private events: Record<string, Function[]> = {}
 
-  on(event: string, listener: Function): void {
+  constructor() {
+    this.events = {}
+    this.on = this.on.bind(this)
+    this.removeEventListener = this.removeEventListener.bind(this)
+    this.emit = this.emit.bind(this)
+  }
+
+  on(event: string, listener: Function) {
+    console.log('on', event, listener)
     if (!this.events[event]) {
       this.events[event] = []
     }
     this.events[event].push(listener)
+    return this
   }
 
   emit(event: string, ...args: any[]): void {
