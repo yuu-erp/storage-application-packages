@@ -8,6 +8,5 @@
       "core": ["../../core"]
     }
   },
-  "files": ["../../types/index.d.ts"],
   "include": ["src", "../../package/**/*", "../../core"]
 }
