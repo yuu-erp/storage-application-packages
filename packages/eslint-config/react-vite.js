@@ -1,6 +1,3 @@
-import js from '@eslint/js'
-import eslintConfigPrettier from 'eslint-config-prettier'
-import tseslint from 'typescript-eslint'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginVitest from 'eslint-plugin-vitest'
@@ -14,9 +11,6 @@ import { config as baseConfig } from './base.js'
  */
 export const config = [
   ...baseConfig,
-  js.configs.recommended,
-  eslintConfigPrettier,
-  ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   {
     languageOptions: {
@@ -36,9 +30,8 @@ export const config = [
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
-      // Các rule có thể thêm
-      'vitest/no-focused-tests': 'error', // Không cho phép test `.only`
-      'vitest/consistent-test-it': ['error', { fn: 'test' }] // Đồng nhất dùng `test` hoặc `it`
+      'vitest/no-focused-tests': 'error',
+      'vitest/consistent-test-it': ['error', { fn: 'test' }]
     }
   }
 ]
