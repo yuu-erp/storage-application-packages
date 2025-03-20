@@ -94,6 +94,8 @@ class SystemCore extends EventEmitter {
 
   #postMessage(message: string, isFrame = false) {
     try {
+      this.#logger.debug('#postMessage:', message)
+
       if (isFrame) {
         window.parent.postMessage(message, window.origin)
       } else if (window.webkit?.messageHandlers?.callbackHandler?.postMessage) {
