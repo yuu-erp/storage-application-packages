@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import "./globals.css";
 import { METADATA } from "@/lib/constant";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,7 +31,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="w-screen flex-1 overflow-x-hidden">{children}</div>
+          <div className="w-screen flex-1 overflow-x-hidden">
+            <Header />
+            {children}
+          </div>
           <Footer />
           <Toaster position="top-center" />
         </ThemeProvider>

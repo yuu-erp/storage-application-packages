@@ -2,7 +2,7 @@ import Logo from "./logo";
 import MobileMenu from "./mobile-menu";
 import Navigation from "./navigation";
 
-function Header({ mode }: { mode: "light" | "dark" }) {
+function Header() {
   const links = [
     { path: "/", label: "Your Problems" },
     { path: "/our-solution", label: "Our Solution" },
@@ -17,13 +17,13 @@ function Header({ mode }: { mode: "light" | "dark" }) {
     <>
       {/* mobile hamburger menu */}
       <header className="absolute left-0 top-2 z-50 flex w-full justify-between px-4 lg:hidden">
-        <Logo theme={mode} />
+        <Logo />
 
-        <MobileMenu mode={mode} links={links} />
+        <MobileMenu links={links} />
       </header>
       {/* large device navigation */}
       <header className="absolute left-0 right-0 top-0 z-50 hidden h-20 bg-[#01001C]/10 lg:block">
-        <Navigation links={links} mode={mode} />
+        <Navigation links={links} />
       </header>
     </>
   );

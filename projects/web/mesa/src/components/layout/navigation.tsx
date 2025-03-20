@@ -8,11 +8,10 @@ import Logo from "./logo";
 
 interface NavigationProps {
   links: { path: string; label: string }[];
-  mode: "light" | "dark";
   closeDrawer?: () => void;
 }
 
-function Navigation({ links, mode, closeDrawer }: NavigationProps) {
+function Navigation({ links, closeDrawer }: NavigationProps) {
   const pathname = usePathname();
 
   return (
@@ -42,7 +41,7 @@ function Navigation({ links, mode, closeDrawer }: NavigationProps) {
       {/* large device nav */}
       <nav className="hidden h-full lg:block">
         <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
-          <Logo theme={mode} />
+          <Logo />
 
           <ul className="flex h-full items-center justify-end gap-4">
             {links.map((link) => (
@@ -50,7 +49,9 @@ function Navigation({ links, mode, closeDrawer }: NavigationProps) {
                 key={link.path}
                 className={cn(
                   "flex h-full items-center",
-                  mode === "dark"
+                  ["/our-solution", "/tech-assurance", "/contact-us"].includes(
+                    pathname,
+                  )
                     ? "text-secondary-foreground"
                     : "text-foreground",
                 )}
