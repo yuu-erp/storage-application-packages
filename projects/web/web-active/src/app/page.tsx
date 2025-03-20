@@ -39,7 +39,7 @@ export default function Home() {
               <DialogTrigger className="px-auto w-full cursor-pointer rounded-2xl bg-gradient-to-br from-[rgb(203,93,255)] to-[rgb(29,65,190)] py-5 text-base font-bold outline-none hover:opacity-90 lg:w-fit lg:px-24 lg:text-2xl">
                 OPEN APP
               </DialogTrigger>
-              <DialogContent className="w-[95%] max-w-5xl rounded-2xl bg-black/90 text-white backdrop-blur-3xl">
+              <DialogContent className="w-[95%] max-w-5xl rounded-2xl bg-black/10 text-white shadow-xl backdrop-blur-3xl">
                 <DialogTitle> </DialogTitle>
                 <DialogDescription> </DialogDescription>
                 <OpenApp />
@@ -51,7 +51,6 @@ export default function Home() {
             <HomeCarousel />
           </div>
         </div>
-
         <SocialSidebar />
       </Container>
     </main>
