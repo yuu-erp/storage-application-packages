@@ -5,8 +5,6 @@ import { SystemCore } from '@repo/core'
 export default function App() {
   const getAllWallet = async () => {
     try {
-      console.log('getAllWallet 1')
-      console.log('getAllWallet 2S')
       const res = await SystemCore.send({ command: 'getAllWallets' })
       console.log('getAllWallet ...', res)
     } catch (err) {

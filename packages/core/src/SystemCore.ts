@@ -1,9 +1,15 @@
 import { SendResponseDto } from './dtos/send-response.dto'
 import { SendPayloadDto } from './dtos/send.dto'
-import { receiveData } from './receiveData'
 import { splitDataIntoChunks } from './utils'
 import { EventEmitter } from './utils/EventEmitter'
 import { generateRandomString } from './utils/ids'
+import { Logger } from './utils/Logger'
+
+const MESSAGE_SIZE_LIMIT = 64000
+
+interface ReceiveData {
+  [key: string]: any
+}
 
 class SystemCore extends EventEmitter {
   #pendingCommands = new Set<string>()
@@ -11,7 +17,9 @@ class SystemCore extends EventEmitter {
   #hasNotch: boolean = false
   #isFrame: boolean
   #finSdk: typeof window.finSdk | undefined
-  #receiveLargeData: any
+  #receiveLargeData: any = {}
+  #logger = new Logger('[SystemCore]')
+  #receiveData: ReceiveData = {}
 
   constructor() {
     super()
@@ -20,6 +28,7 @@ class SystemCore extends EventEmitter {
       this.#isFrame || !!window.webkit?.messageHandlers?.callbackHandler || !!window.opener
     this.#finSdk = window.finSdk
     this.#subscribe()
+    this.#logger.info('SystemCore initialized')
   }
 
   get isReady() {
@@ -31,19 +40,25 @@ class SystemCore extends EventEmitter {
   }
 
   public async send(payload: SendPayloadDto) {
-    console.log('send', payload)
-    if (typeof this.#finSdk !== 'undefined' || this.#finSdk) {
-      return await this.#finSdk.call(payload)
-    }
-    if (!window?.webkit?.messageHandlers && !this.#isFrame)
-      throw new Error('Your device is not deployed yet.')
-    receiveData[payload.command] = -1
     payload.appId = window.appId
     payload.messageId = generateRandomString(8)
+    const eventKey = `${payload.command}_${payload.messageId}`
+
+    this.#logger.debug('Sending payload:', payload, 'with eventKey:', eventKey)
+
+    if (this.#finSdk) {
+      return await this.#finSdk.call(payload)
+    }
+
+    if (!window?.webkit?.messageHandlers && !this.#isFrame) {
+      throw new Error('Your device is not deployed yet.')
+    }
+
+    this.#receiveData[eventKey] = -1
     this.#sendMessageToNative(payload)
-    const data = await this.#postMessageToWindow(payload)
-    console.log('await this.#postMessageToWindow(payload)', data)
-    return await this.#postMessageToWindow(payload)
+
+    const response = await this.#postMessageToWindow(payload, eventKey)
+    return response
   }
 
   #sendChunks(command: string, data: string, isFrame = false) {
@@ -52,7 +67,7 @@ class SystemCore extends EventEmitter {
     }
 
     const chunks = splitDataIntoChunks(data)
-    console.log(`Sending ${chunks.length} chunks`)
+    this.#logger.debug(`Sending ${chunks.length} chunks for command: ${command}`)
 
     chunks.forEach(({ chunk, index, totalChunks }) => {
       const message = JSON.stringify({ type: 'large', chunk, index, totalChunks, command })
@@ -60,57 +75,46 @@ class SystemCore extends EventEmitter {
     })
   }
 
-  #postMessage(message: string, isFrame = false) {
-    try {
-      if (isFrame) {
-        window.parent.postMessage(message, window.origin)
-      } else if (
-        typeof window?.webkit?.messageHandlers?.callbackHandler?.postMessage === 'function'
-      ) {
-        window.webkit.messageHandlers.callbackHandler.postMessage(message)
-      } else {
-        console.warn('WebKit message handler not found')
-      }
-    } catch (error) {
-      console.error('Error sending message:', error)
-    }
-  }
-
   #sendMessageToNative(payload: SendPayloadDto) {
     try {
       const message = JSON.stringify(payload)
-      if (message.length > 64000) {
+      if (message.length > MESSAGE_SIZE_LIMIT) {
+        this.#logger.warn('Message too large, splitting into chunks')
         this.#sendChunks(payload.command, message)
       } else {
-        const messageNormal = JSON.stringify({
-          type: 'normal',
-          data: message
-        })
+        const messageNormal = JSON.stringify({ type: 'normal', data: message })
         this.#postMessage(messageNormal)
       }
     } catch (error) {
-      console.error('Error sending message:', error)
+      this.#logger.error('Error sending message:', error)
     } finally {
       this.#pendingCommands.delete(payload.command.toString())
     }
   }
 
-  #postMessageToWindow(payload: SendPayloadDto): Promise<SendResponseDto> {
-    console.log('postMessageToWindow payload ===>', payload)
-    return new Promise((resolve, reject) => {
-      try {
-        const receivedResponse = (res: SendResponseDto) => {
-          console.log('#postMessageToWindow', res)
-          resolve(res)
-          console.log('#postMessageToWindow 666', res)
-          this.removeEventListener(payload.command, receivedResponse)
-        }
-        console.log('postMessageToWindow payload 2 ===>', payload)
-        this.on(payload.command, receivedResponse)
-        window.opener?.postMessage(payload, '*')
-      } catch (error) {
-        reject(error)
+  #postMessage(message: string, isFrame = false) {
+    try {
+      if (isFrame) {
+        window.parent.postMessage(message, window.origin)
+      } else if (window.webkit?.messageHandlers?.callbackHandler?.postMessage) {
+        window.webkit.messageHandlers.callbackHandler.postMessage(message)
+      } else {
+        this.#logger.warn('WebKit handler not found')
       }
+    } catch (error) {
+      this.#logger.error('Error posting message:', error)
+    }
+  }
+
+  #postMessageToWindow(payload: SendPayloadDto, eventKey: string): Promise<SendResponseDto> {
+    return new Promise((resolve, reject) => {
+      const receivedResponse = (res: SendResponseDto) => {
+        resolve(res)
+        this.removeEventListener(eventKey, receivedResponse)
+      }
+      this.on(eventKey, receivedResponse)
+
+      window.opener?.postMessage(payload, '*')
     })
   }
 
@@ -118,9 +122,11 @@ class SystemCore extends EventEmitter {
     window.addEventListener('flutterInAppWebViewPlatformReady', () => {
       this.#isReady = true
       this.emit('ready')
+      this.#logger.info('flutterInAppWebViewPlatformReady detected, system ready')
     })
 
     window.require?.('electron')?.ipcRenderer.on('message', (_event: any, ...args: any[]) => {
+      this.#logger.debug('Electron ipcRenderer message received:', args)
       if (args[0]) {
         window.postMessage(args[0], '*')
       } else {
@@ -128,110 +134,42 @@ class SystemCore extends EventEmitter {
       }
     })
 
-    window.addEventListener('message', (ev) => {
+    window.addEventListener('message', (event) => {
       try {
-        const { data } = ev
-        console.log('POST_MESSAGE_NATIVE_TO_WEB: ', data)
+        const { data } = event
+        this.#logger.debug('Received message from native:', data)
         if (!data) return
-        const type = data.type ?? 'normal'
 
-        let receiveMessage
-        if (type === 'normal') {
-          let result = data
-          if (typeof result === 'string') {
-            result = JSON.parse(result)
-          }
-          receiveMessage = result
-        } else {
+        let receiveMessage: any
+        if (data.type === 'normal') {
+          receiveMessage = typeof data === 'string' ? JSON.parse(data) : data
+        } else if (data.type === 'large') {
           const { chunk, index, totalChunks, command } = data
-          if (
-            !this.#receiveLargeData[command] ||
-            Object.keys(this.#receiveLargeData).length === 0
-          ) {
-            if (index === 0) {
-              this.#receiveLargeData[command] = {
-                expectedChunks: totalChunks,
-                receivedData: '',
-                receivedChunks: 0
-              }
+          if (!this.#receiveLargeData[command]) {
+            this.#receiveLargeData[command] = {
+              expectedChunks: totalChunks,
+              receivedData: '',
+              receivedChunks: 0
             }
           }
-          this.#receiveLargeData[command] = {
-            ...this.#receiveLargeData[command],
-            receivedData: this.#receiveLargeData[command].receivedData + chunk,
-            receivedChunks: this.#receiveLargeData[command].receivedChunks + 1
-          }
-          if (
-            this.#receiveLargeData[command].receivedChunks !==
-            this.#receiveLargeData[command].expectedChunks
-          ) {
-            return
-          }
+          this.#receiveLargeData[command].receivedData += chunk
+          this.#receiveLargeData[command].receivedChunks += 1
+
+          if (this.#receiveLargeData[command].receivedChunks !== totalChunks) return
           receiveMessage = JSON.parse(this.#receiveLargeData[command].receivedData)
           delete this.#receiveLargeData[command]
+        } else {
+          receiveMessage = data
         }
-        if (typeof data === 'string') {
-          if (data.startsWith('backWorker|')) {
-            return
-          }
-          return this.#handleJsonStringMessage(data, true)
-        }
-        if (data.cmd) {
-          this.emit('listen-cmd', data)
-          return
-        }
-        if (!data.isSocket) {
-          if (data.command) {
-            let cmd = receiveMessage.command
-            if (receiveMessage && receiveMessage.messageId) {
-              cmd = cmd + '_' + receiveMessage.messageId
-            }
-            const messageSending = receiveData[cmd]
-            if (messageSending && typeof messageSending.resolve === 'function') {
-              messageSending.resolve(receiveMessage.data)
-              this.#pendingCommands.delete(receiveMessage.command)
-            }
-            return
-          }
-        }
+
         if (!receiveMessage) return
-        this.emit(receiveMessage.command, receiveMessage.data)
+        const eventKey = `${receiveMessage.data.command}_${receiveMessage.data.messageId}`
+        this.#logger.debug('Emitting event:', eventKey, receiveMessage)
+        this.emit(eventKey, receiveMessage)
       } catch (error) {
-        console.error('<<<<CORE index.js [LEFN] Listen message catch>>>> ', error)
+        this.#logger.error('Error processing incoming message:', error)
       }
     })
-  }
-
-  #handleJsonStringMessage(stringData: any, isListen?: any) {
-    if (!stringData) {
-      return
-    }
-    try {
-      let res = stringData
-      if (typeof res === 'string' && (res.indexOf('{') > -1 || res.indexOf('[') > -1)) {
-        res = JSON.parse(stringData)
-      }
-
-      const command = res.command
-      const response = res.data
-      if (!command && !response) return
-
-      if (response.success !== true) {
-        if (isListen) {
-          this.emit(command, res)
-        }
-        throw new Error(response.message)
-      }
-      if (isListen) {
-        this.emit(command, res)
-      }
-      receiveData[command].resolve(res)
-      this.#pendingCommands.delete(command)
-      return res.data
-    } catch (err) {
-      console.error('Error handling JSON string message: ', err)
-      throw err
-    }
   }
 }
 

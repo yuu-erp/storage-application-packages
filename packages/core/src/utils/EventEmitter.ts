@@ -9,7 +9,6 @@ export class EventEmitter {
   }
 
   on(event: string, listener: Function) {
-    console.log('on', event, listener)
     if (!this.events[event]) {
       this.events[event] = []
     }
